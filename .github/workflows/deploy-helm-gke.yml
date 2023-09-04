@@ -1,0 +1,108 @@
+name: release into the target GKE cluster
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the "main" branch
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  CHART_PATH: helm-petclinic/
+  RELEASE_NAME: dqa-petclinic
+  NAMESPACE: default
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  prepare:
+    permissions:
+      id-token: write
+      contents: read
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+                    
+      - name: Helm tool installer
+        uses: Azure/setup-helm@v3 
+
+      - name: Print the Helm client version information
+        run: helm version
+
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          token_format: 'access_token'
+          workload_identity_provider: ${{ secrets.CD_PROVIDER_ID }}
+          service_account: ${{ secrets.CD_SERVICE_ACCOUNT }}
+          audience: 'https://github.com/Taewoogit/PetclinicCD'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1.1.1
+
+      - name: Install Google Cloud Auth plugin
+        run: gcloud components install gke-gcloud-auth-plugin
+
+      - name: Get Kubernetes config
+        run: gcloud container clusters get-credentials ${{ secrets.CLUSTER_NAME }} --zone ${{ secrets.ZONE }} --project ${{ secrets.PROJECT_ID }}
+
+      - name: Examine the chart for possible issues
+        run: helm lint ${{ env.CHART_PATH }}
+
+      - name: "[MANIFESTS] Dry-run the release"
+        run: |
+          helm upgrade ${{ env.RELEASE_NAME }} ${{ env.CHART_PATH }} \
+            --namespace ${{ env.NAMESPACE }} \
+            --install \
+            --dry-run
+
+  deploy:
+    needs: prepare
+    permissions:
+      id-token: write
+      contents: read
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+                    
+      - name: Helm tool installer
+        uses: Azure/setup-helm@v3 
+
+      - name: Print the Helm client version information
+        run: helm version
+
+      - id: 'auth'
+        name: 'Authenticate to Google Cloud'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          token_format: 'access_token'
+          workload_identity_provider: ${{ secrets.CD_PROVIDER_ID }}
+          service_account: ${{ secrets.CD_SERVICE_ACCOUNT }}
+          audience: 'https://github.com/bespin-gcp-ps/dqa-test-k8s-deploy'
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1.1.1
+
+      - name: Install Google Cloud Auth plugin
+        run: gcloud components install gke-gcloud-auth-plugin
+
+      - name: Get Kubernetes config
+        run: gcloud container clusters get-credentials ${{ secrets.CLUSTER_NAME }} --zone ${{ secrets.ZONE }} --project ${{ secrets.PROJECT_ID }}
+
+      - name: Examine the chart for possible issues
+        run: helm lint ${{ env.CHART_PATH }}
+
+      - name: Upgrade the release
+        run: |
+          helm upgrade ${{ env.RELEASE_NAME }} ${{ env.CHART_PATH }} \
+            --namespace ${{ env.NAMESPACE }} \
+            --install 
+
+      - name: List the upgrade result
+        run: helm list --filter ${{ env.RELEASE_NAME }} --namespace ${{ env.NAMESPACE }}
