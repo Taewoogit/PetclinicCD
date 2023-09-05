@@ -1,12 +1,11 @@
 name: release into the target GKE cluster
 
-# Controls when the workflow will run
+
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
+    branches: [ master ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ master ]
 
 env:
   CHART_PATH: helm-petclinic/
@@ -24,7 +23,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
-
                     
       - name: Helm tool installer
         uses: Azure/setup-helm@v3 
@@ -33,8 +31,8 @@ jobs:
         run: helm version
 
       - id: 'auth'
-        name: 'Authenticate to Google Cloud'
-        uses: 'google-github-actions/auth@v1'
+        name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v1
         with:
           token_format: 'access_token'
           workload_identity_provider: ${{ secrets.CD_PROVIDER_ID }}
