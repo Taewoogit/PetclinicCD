@@ -9,7 +9,7 @@ on:
 
 env:
   CHART_PATH: helm-petclinic/
-  RELEASE_NAME: dqa-petclinic
+  RELEASE_NAME: tw-petclinic
   NAMESPACE: default
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
