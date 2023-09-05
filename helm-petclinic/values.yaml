@@ -5,10 +5,10 @@
 replicaCount: 2
 
 image:
-  repository: asia-northeast3-docker.pkg.dev/beha-data/dqa-test-image/dqa-petclinic
+  repository: asia-northeast3-docker.pkg.dev/amazing-source-396109/repository/dqa-petclinic
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "19"
+  tag: "24"
 
 imagePullSecrets: []
 nameOverride: "dqa-petclinic"
