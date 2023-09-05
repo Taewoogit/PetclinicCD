@@ -35,8 +35,8 @@ jobs:
         uses: google-github-actions/auth@v1
         with:
           token_format: 'access_token'
-          workload_identity_provider: projects/828614594239/locations/global/workloadIdentityPools/wif-pool/providers/cd-provider
-          service_account: cd-service-account@amazing-source-396109.iam.gserviceaccount.com
+          workload_identity_provider: ${{ secrets.CD_PROVIDER_ID }}
+          service_account: ${{ secrets.CD_SERVICE_ACCOUNT }}
           audience: 'https://github.com/Taewoogit/PetclinicCD'
 
       - name: Set up Cloud SDK
