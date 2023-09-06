@@ -81,7 +81,7 @@ autoscaling:
   # targetMemoryUtilizationPercentage: 80
 
 nodeSelector:
-  node: node
+  node: dqa-petclinic
 
 tolerations: []
 
