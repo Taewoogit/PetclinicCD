@@ -51,7 +51,7 @@ backendConfig:
 
 service:
   type: ClusterIP
-  port: 8080
+  port: 80
 
 ingress:
   enabled: true
