@@ -47,7 +47,7 @@ backendConfig:
   healthCheck:
     checkIntervalSec: 5
     timeoutSec: 3
-    requestPath: /
+    requestPath: /health
 
 service:
   type: ClusterIP
